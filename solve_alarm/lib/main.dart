@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:solve_alarm/pages/notification_detail.dart';
 
-
-// Entry point of the application
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
   runApp(const MyApp());
 }
 
-/// The root widget of the application
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -23,63 +23,115 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// The main screen of the alarm app
-class AlarmScreen extends StatelessWidget {
+class Alarm {
+  TimeOfDay time;
+  bool isActive;
+
+  Alarm({required this.time, this.isActive = true});
+}
+
+class AlarmScreen extends StatefulWidget {
   const AlarmScreen({super.key});
+
+  @override
+  _AlarmScreenState createState() => _AlarmScreenState();
+}
+
+class _AlarmScreenState extends State<AlarmScreen> {
+  List<Alarm> alarms = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('S O L V E A L A R M', style: TextStyle(color: Colors.white)),
+        title: const Text('S O L V E A L A R M',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
       ),
-      body: const Center(
-        child: Text(
-          'No alarms set',
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-      ),
+      body: alarms.isEmpty
+          ? const Center(
+              child: Text(
+                'No alarms set',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            )
+          : ListView.builder(
+              itemCount: alarms.length,
+              itemBuilder: (context, index) {
+                final alarm = alarms[index];
+                return ListTile(
+                  title: Text(
+                    formatTimeOfDay(alarm.time),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.settings, color: Colors.white),
+                        onPressed: () => _updateAlarm(index),
+                      ),
+                      Switch(
+                        value: alarm.isActive,
+                        onChanged: (value) {
+                          setState(() {
+                            alarm.isActive = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to the AddAlarmScreen when the button is pressed
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddAlarmScreen()),
-          );
-        },
+        onPressed: _addAlarm,
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add),
       ),
     );
   }
-}
 
-/// Screen for adding a new alarm
-class AddAlarmScreen extends StatelessWidget {
-  const AddAlarmScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Alarm'),
-      ),
-      body: const Center(
-        child: Text('Add new alarm here'),
-      ),
+  void _addAlarm() async {
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
+    if (selectedTime != null) {
+      setState(() {
+        alarms.add(Alarm(time: selectedTime));
+      });
+    }
+  }
+
+  void _updateAlarm(int index) async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: alarms[index].time,
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (newTime != null) {
+      setState(() {
+        alarms[index].time = newTime;
+      });
+    }
+  }
+
+  String formatTimeOfDay(TimeOfDay time) {
+    final now = DateTime.now();
+    final dateTime =
+        DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }
-
-// TODO: Future improvements
-// 1. Implement state management (e.g., using Provider or Riverpod) to handle alarm data
-// 2. Create a model class for Alarm to store alarm details
-// 3. Implement local storage to persist alarms (e.g., using SharedPreferences or SQLite)
-// 4. Add functionality to set alarm time, repeat options, and alarm sound
-// 5. Implement alarm triggering and notification system
-// 6. Add a list view to display multiple alarms on the main screen
-// 7. Implement edit and delete functionality for existing alarms
-// 8. Add settings page for app-wide configurations
-// 9. Implement dark mode toggle and other theme options
-// 10. Add animations for smoother transitions between screens
