@@ -33,20 +33,38 @@ class AlarmScreen extends StatelessWidget {
         title: const Text('S O L V E A L A R M', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
       ),
-      body: Row(
+      body: Column(
         children: [
-          Column(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            
             children: [
-              const Text("06:30", style: TextStyle(color: Colors.white),),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditAlarmScreen()));
-                }, 
-                color: Colors.white,
-                icon: const Icon(Icons.edit),
+              Container (
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.green,
+                ),
+                child: const Text("06:30", style: TextStyle(color: Colors.white),),
+              ),
+              const Spacer(),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditAlarmScreen()));
+                  }, 
+                  color: Colors.white,
+                  icon: const Icon(Icons.edit),
+                ),
               ),
               Container(
-                color: Colors.red,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: IconButton(
                   onPressed: () { },
                   icon: const Icon(Icons.delete),
