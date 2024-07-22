@@ -35,43 +35,45 @@ class AlarmScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            
-            children: [
-              Container (
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.green,
+          Container(
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 112, 112, 112),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("06:30", style: TextStyle(color: Colors.white, fontSize: 30),),
+                const Spacer(),
+                Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const EditAlarmScreen()));
+                    }, 
+                    color: Colors.white,
+                    icon: const Icon(Icons.settings),
+                  ),
                 ),
-                child: const Text("06:30", style: TextStyle(color: Colors.white),),
-              ),
-              const Spacer(),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(10),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: IconButton(
+                    onPressed: () { },
+                    icon: const Icon(Icons.delete),
+                    color: Colors.white,
+                  ),
                 ),
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditAlarmScreen()));
-                  }, 
-                  color: Colors.white,
-                  icon: const Icon(Icons.edit),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: IconButton(
-                  onPressed: () { },
-                  icon: const Icon(Icons.delete),
-                  color: Colors.white,
-                ),
-              )
-            ],
+              ],
+            )
           )
         ],
       ),
