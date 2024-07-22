@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class AddAlarmScreen extends StatefulWidget {
-  const AddAlarmScreen({super.key});
+class EditAlarmScreen extends StatefulWidget {
+  const EditAlarmScreen({super.key});
 
   @override
-  State<AddAlarmScreen> createState() => _AddAlarmScreenState();
+  State<EditAlarmScreen> createState() => _EditAlarmScreenState();
 }
 
-class _AddAlarmScreenState extends State<AddAlarmScreen> {
+class _EditAlarmScreenState extends State<EditAlarmScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +16,7 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
       ),
       body: const Center(
         child: Text(
-          'Add new alarm here',
+          'Edit alarm #1',
           style: TextStyle(color: Colors.white),
           ),
       ),
