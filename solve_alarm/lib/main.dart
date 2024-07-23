@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,6 +32,13 @@ class AlarmScreen extends StatefulWidget {
 
 class _AlarmScreenState extends State<AlarmScreen> {
   List<Map<String, dynamic>> alarms = [];
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   void _addAlarm(Map<String, dynamic> newAlarm) {
     setState(() {
@@ -61,6 +69,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
               children: [
                 Text(alarm['time'], style: const TextStyle(color: Colors.white, fontSize: 30)),
                 const Spacer(),
+                IconButton(
+                  onPressed: () async {
+                    if (alarm['sound'] != null && alarm['sound'].isNotEmpty) {
+                      await _audioPlayer.play(AssetSource('sounds/${alarm['sound']}'));
+                    }
+                  },
+                  icon: const Icon(Icons.play_arrow),
+                  color: Colors.white,
+                ),
                 Container(
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
