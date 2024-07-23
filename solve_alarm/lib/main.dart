@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
 
@@ -23,19 +22,34 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AlarmScreen extends StatelessWidget {
+class AlarmScreen extends StatefulWidget {
   const AlarmScreen({super.key});
+
+  @override
+  State<AlarmScreen> createState() => _AlarmScreenState();
+}
+
+class _AlarmScreenState extends State<AlarmScreen> {
+  List<Map<String, dynamic>> alarms = [];
+
+  void _addAlarm(Map<String, dynamic> newAlarm) {
+    setState(() {
+      alarms.add(newAlarm);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('S O L V E A L A R M', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 218, 209, 209),
       ),
-      body: Column(
-        children: [
-          Container(
+      body: ListView.builder(
+        itemCount: alarms.length,
+        itemBuilder: (context, index) {
+          final alarm = alarms[index];
+          return Container(
             margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -45,7 +59,7 @@ class AlarmScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("06:30", style: TextStyle(color: Colors.white, fontSize: 30),),
+                Text(alarm['time'], style: const TextStyle(color: Colors.white, fontSize: 30)),
                 const Spacer(),
                 Container(
                   margin: const EdgeInsets.only(right: 10),
@@ -67,22 +81,25 @@ class AlarmScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: IconButton(
-                    onPressed: () { },
+                    onPressed: () {
+                      setState(() {
+                        alarms.removeAt(index);
+                      });
+                    },
                     icon: const Icon(Icons.delete),
                     color: Colors.white,
                   ),
                 ),
               ],
-            )
-          )
-        ],
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Open new page to add alarm
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddAlarmScreen()),
+            MaterialPageRoute(builder: (context) => AddAlarmScreen(onAlarmAdded: _addAlarm)),
           );
         },
         backgroundColor: Colors.blue,
