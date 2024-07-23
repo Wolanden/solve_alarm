@@ -42,7 +42,13 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   void _addAlarm(Map<String, dynamic> newAlarm) {
     setState(() {
-      alarms.add(newAlarm);
+      alarms.add({...newAlarm, 'isActive': true});
+    });
+  }
+
+  void _toggleAlarmActive(int index, bool isActive) {
+    setState(() {
+      alarms[index]['isActive'] = isActive;
     });
   }
 
@@ -50,7 +56,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('S O L V E A L A R M', style: TextStyle(color: Colors.white)),
+        title: const Text('S O L V E A L A R M',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 218, 209, 209),
       ),
       body: ListView.builder(
@@ -67,12 +74,21 @@ class _AlarmScreenState extends State<AlarmScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(alarm['time'], style: const TextStyle(color: Colors.white, fontSize: 30)),
+                Text(alarm['time'],
+                    style: const TextStyle(color: Colors.white, fontSize: 30)),
                 const Spacer(),
+                Switch(
+                  value: alarm['isActive'],
+                  onChanged: (value) {
+                    _toggleAlarmActive(index, value);
+                  },
+                  activeColor: Colors.blue,
+                ),
                 IconButton(
                   onPressed: () async {
                     if (alarm['sound'] != null && alarm['sound'].isNotEmpty) {
-                      await _audioPlayer.play(AssetSource('sounds/${alarm['sound']}'));
+                      await _audioPlayer
+                          .play(AssetSource('sounds/${alarm['sound']}'));
                     }
                   },
                   icon: const Icon(Icons.play_arrow),
@@ -86,8 +102,11 @@ class _AlarmScreenState extends State<AlarmScreen> {
                   ),
                   child: IconButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const EditAlarmScreen()));
-                    }, 
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const EditAlarmScreen()));
+                    },
                     color: Colors.white,
                     icon: const Icon(Icons.settings),
                   ),
@@ -116,7 +135,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddAlarmScreen(onAlarmAdded: _addAlarm)),
+            MaterialPageRoute(
+                builder: (context) => AddAlarmScreen(onAlarmAdded: _addAlarm)),
           );
         },
         backgroundColor: Colors.blue,

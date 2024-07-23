@@ -91,7 +91,8 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
             if (_selectedSound.isNotEmpty)
               ElevatedButton(
                 onPressed: () async {
-                  await _audioPlayer.play(AssetSource('sounds/$_selectedSound'));
+                  await _audioPlayer
+                      .play(AssetSource('sounds/$_selectedSound'));
                 },
                 child: const Text('Preview Sound'),
               ),
@@ -99,9 +100,11 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
             ElevatedButton(
               onPressed: () {
                 final newAlarm = {
-                  'time': '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
+                  'time':
+                      '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
                   'days': _selectedDays,
                   'sound': _selectedSound,
+                  'isActive': true,
                 };
                 widget.onAlarmAdded(newAlarm);
                 Navigator.pop(context);
