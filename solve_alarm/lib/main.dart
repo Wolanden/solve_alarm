@@ -46,10 +46,82 @@ class _AlarmScreenState extends State<AlarmScreen> {
     });
   }
 
+  void _removeAlarm(int index) {
+    setState(() {
+      alarms.removeAt(index);
+    });
+  }
+
   void _toggleAlarmActive(int index, bool isActive) {
     setState(() {
       alarms[index]['isActive'] = isActive;
     });
+  }
+
+  Container alarmPanel(Map alarm, int index) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 112, 112, 112),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(alarm['time'],
+              style: const TextStyle(color: Colors.white, fontSize: 30)),
+          const Spacer(),
+          Switch(
+            value: alarm['isActive'],
+            onChanged: (value) {
+              _toggleAlarmActive(index, value);
+            },
+            activeColor: Colors.blue,
+          ),
+          IconButton(
+            onPressed: () async {
+              if (alarm['sound'] != null && alarm['sound'].isNotEmpty) {
+                await _audioPlayer
+                    .play(AssetSource('sounds/${alarm['sound']}'));
+              }
+            },
+            icon: const Icon(Icons.play_arrow),
+            color: Colors.white,
+          ),
+          Container(
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const EditAlarmScreen()));
+              },
+              color: Colors.white,
+              icon: const Icon(Icons.settings),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              onPressed: () {
+                _removeAlarm(index);
+              },
+              icon: const Icon(Icons.delete),
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -64,71 +136,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
         itemCount: alarms.length,
         itemBuilder: (context, index) {
           final alarm = alarms[index];
-          return Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 112, 112, 112),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(alarm['time'],
-                    style: const TextStyle(color: Colors.white, fontSize: 30)),
-                const Spacer(),
-                Switch(
-                  value: alarm['isActive'],
-                  onChanged: (value) {
-                    _toggleAlarmActive(index, value);
-                  },
-                  activeColor: Colors.blue,
-                ),
-                IconButton(
-                  onPressed: () async {
-                    if (alarm['sound'] != null && alarm['sound'].isNotEmpty) {
-                      await _audioPlayer
-                          .play(AssetSource('sounds/${alarm['sound']}'));
-                    }
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  color: Colors.white,
-                ),
-                Container(
-                  margin: const EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const EditAlarmScreen()));
-                    },
-                    color: Colors.white,
-                    icon: const Icon(Icons.settings),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        alarms.removeAt(index);
-                      });
-                    },
-                    icon: const Icon(Icons.delete),
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          );
+          return alarmPanel(alarm, index);
         },
       ),
       floatingActionButton: FloatingActionButton(
