@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class AddAlarmScreen extends StatefulWidget {
   final Function(Map<String, dynamic>) onAlarmAdded;
@@ -14,6 +14,20 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   final List<bool> _selectedDays = List.generate(7, (_) => false);
   String _selectedSound = '';
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  // List of available sounds (update this with your actual sound file names)
+  final List<String> _availableSounds = [
+    'Allstar.mp3',
+    'BlackBanjocore.mp3',
+    'alarm3.mp3',
+  ];
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,21 +71,30 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
               }),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                FilePickerResult? result = await FilePicker.platform.pickFiles(
-                  type: FileType.audio,
-                  allowedExtensions: ['mp3'],
+            DropdownButton<String>(
+              value: _selectedSound.isEmpty ? null : _selectedSound,
+              hint: const Text('Select Alarm Sound'),
+              items: _availableSounds.map((String sound) {
+                return DropdownMenuItem<String>(
+                  value: sound,
+                  child: Text(sound),
                 );
-
-                if (result != null) {
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
                   setState(() {
-                    _selectedSound = result.files.single.path!;
+                    _selectedSound = newValue;
                   });
                 }
               },
-              child: Text(_selectedSound.isEmpty ? 'Select Alarm Sound' : 'Sound: ${_selectedSound.split('/').last}'),
             ),
+            if (_selectedSound.isNotEmpty)
+              ElevatedButton(
+                onPressed: () async {
+                  await _audioPlayer.play(AssetSource('sounds/$_selectedSound'));
+                },
+                child: const Text('Preview Sound'),
+              ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
