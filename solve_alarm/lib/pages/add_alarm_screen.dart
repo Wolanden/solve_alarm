@@ -20,7 +20,13 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
   final List<String> _availableSounds = [
     'Allstar.mp3',
     'BlackBanjocore.mp3',
-    'alarm3.mp3',
+    'CanIGet.mp3',
+    'ElSondito.mp3',
+    'FaxSound.mp3',
+    'HebDini.mp3',
+    'KirinJCallinan.mp3',
+    'TimerTo.mp3',
+    'WindowsError.mp3'
   ];
 
   @override
