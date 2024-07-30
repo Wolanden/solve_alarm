@@ -1,6 +1,12 @@
 
+import 'dart:convert';
+
 class Alarms {
   List<Alarm> alarms = [];
+
+  String toJson() {
+    return jsonEncode(alarms);
+  }
 }
 
 class Alarm {

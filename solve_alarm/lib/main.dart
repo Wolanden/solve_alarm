@@ -4,7 +4,7 @@ import 'package:solve_alarm/model/alarms.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:solve_alarm/service/json_service.dart';
+import 'package:solve_alarm/service/alarm_save_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,8 +38,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
 
-  _loadAlarmsFromJson() async {
-    List<Alarm> fetchedAlarms = await JsonService().loadAlarmsFromJson();
+  _loadAlarms() async {
+    List<Alarm> fetchedAlarms = await AlarmSaveService().loadAlarms();
     setState(() {
       alarms = fetchedAlarms;
     });
@@ -54,27 +54,33 @@ class _AlarmScreenState extends State<AlarmScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAlarmsFromJson();
+    _loadAlarms();
+  }
+
+  void persistAlarms() async {
+    await AlarmSaveService().persistAlarms(alarms);
   }
 
   dynamic _addAlarm(Alarm newAlarm) {
-
-    setState(() {
+    setState(() {      
       newAlarm.active = true;
       alarms.add(newAlarm);
     });
+    persistAlarms();
   }
 
   void _removeAlarm(int index) {
     setState(() {
       alarms.removeAt(index);
     });
+    persistAlarms();
   }
 
   void _toggleAlarmActive(int index, bool active) {
     setState(() {
       alarms[index].active = active;
     });
+    persistAlarms();
   }
 
   Container alarmPanel(Alarm alarm, int index) {
@@ -100,7 +106,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
           ),
           IconButton(
             onPressed: () async {
-              if (alarm.sound != null && alarm.sound.isNotEmpty) {
+              if (alarm.sound.isNotEmpty) {
                 await _audioPlayer
                     .play(AssetSource('sounds/${alarm.sound}'));
               }
