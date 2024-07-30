@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:solve_alarm/model/alarms.dart';
 
 class AddAlarmScreen extends StatefulWidget {
-  final Function(Map<String, dynamic>) onAlarmAdded;
+  final Function(Alarm) onAlarmAdded;
 
   const AddAlarmScreen({super.key, required this.onAlarmAdded});
 
@@ -129,12 +130,14 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                final newAlarm = {
-                  'time': _formatTimeOfDay(_selectedTime),
-                  'days': _selectedDays,
-                  'sound': _selectedSound,
-                  'isActive': true,
-                };
+
+                Alarm newAlarm = new Alarm(
+                  active: true, 
+                  time: '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}', 
+                  weekdays: _selectedDays, 
+                  sound: _selectedSound
+                  );
+
                 widget.onAlarmAdded(newAlarm);
                 Navigator.pop(context);
               },

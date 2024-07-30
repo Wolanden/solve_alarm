@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:solve_alarm/model/alarms.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'dart:async';
+import 'package:solve_alarm/service/alarm_save_service.dart';
 
 void main() {
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,115 +25,137 @@ class MyApp extends StatelessWidget {
 
 class AlarmScreen extends StatefulWidget {
   const AlarmScreen({super.key});
-
   @override
   State<AlarmScreen> createState() => _AlarmScreenState();
 }
 
-class _AlarmScreenState extends State<AlarmScreen> {
-  List<Map<String, dynamic>> alarms = []; // List to store all alarms
-  final AudioPlayer _audioPlayer = AudioPlayer(); // Audio player for alarm sounds
-  Timer? _timer; // Timer to periodically check alarms
-  Map<String, dynamic>? _currentlyRingingAlarm; // Currently active alarm
-  DateTime? _lastAlarmTime;
+class _AlarmScreenState extends State<AlarmScreen> { 
+  List<Alarm> alarms = [];
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
-  @override
-  void initState() {
-    super.initState();
-    _startAlarmChecker();
+  _loadAlarms() async {
+    List<Alarm> fetchedAlarms = await AlarmSaveService().loadAlarms();
+    setState(() {
+      alarms = fetchedAlarms;
+    });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     _audioPlayer.dispose();
     super.dispose();
+  } 
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAlarms();
   }
 
-  void _startAlarmChecker() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _checkAlarms();
+  void persistAlarms() async {
+    await AlarmSaveService().persistAlarms(alarms);
+  }
+
+  void _addAlarm(Alarm newAlarm) {
+    setState(() {      
+      newAlarm.active = true;
+      alarms.add(newAlarm);
     });
+    persistAlarms();
   }
 
-  void _checkAlarms() {
-    if (_currentlyRingingAlarm != null) {
-      return;
-    }
-
-      final now = DateTime.now();
-    if (_lastAlarmTime != null && now.difference(_lastAlarmTime!).inMinutes < 1) {
-      return;
-    }
-
-    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    final currentDay = now.weekday - 1; // 0 for Monday, 6 for Sunday
-
-    for (var alarm in alarms) {
-      if (alarm['isActive'] &&
-          alarm['time'] == currentTime &&
-          alarm['days'][currentDay]) {
-        _ringAlarm(alarm);
-        break;
-      }
-    }
-  }
-
-  void _ringAlarm(Map<String, dynamic> alarm) {
+  void _removeAlarm(int index) {
     setState(() {
-      _currentlyRingingAlarm = alarm;
-      _lastAlarmTime = DateTime.now();
+      alarms.removeAt(index);
     });
-    _audioPlayer.play(AssetSource('sounds/${alarm['sound']}'));
-    _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    _showAlarmDialog(alarm);
+    persistAlarms();
   }
 
-  void _showAlarmDialog(Map<String, dynamic> alarm) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Alarm!'),
-          content: Text('Zeit: ${alarm['time']}'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Stoppen'),
-              onPressed: () {
-                _stopAlarm();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _stopAlarm() {
-    _audioPlayer.stop();
+  void _toggleAlarmActive(int index, bool active) {
     setState(() {
-      _currentlyRingingAlarm = null;
+      alarms[index].active = active;
     });
+    persistAlarms();
   }
 
-  void _addAlarm(Map<String, dynamic> newAlarm) {
-    setState(() {
-      alarms.add({...newAlarm, 'isActive': true});
-    });
-  }
-
-  void _toggleAlarmActive(int index, bool isActive) {
-    setState(() {
-      alarms[index]['isActive'] = isActive;
-    });
-  }
-
-  void _editAlarm(int index, Map<String, dynamic> updatedAlarm) {
+  void _editAlarm(int index, Alarm updatedAlarm) {
     setState(() {
       alarms[index] = updatedAlarm;
     });
+    persistAlarms();
+  }
+
+  Container alarmPanel(Alarm alarm, int index) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 112, 112, 112),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(alarm.time,
+              style: const TextStyle(color: Colors.white, fontSize: 30)),
+          const Spacer(),
+          Switch(
+            value: alarm.active,
+            onChanged: (value) {
+              _toggleAlarmActive(index, value);
+            },
+            activeColor: Colors.blue,
+          ),
+          IconButton(
+            onPressed: () async {
+              if (alarm.sound.isNotEmpty) {
+                await _audioPlayer
+                    .play(AssetSource('sounds/${alarm.sound}'));
+              }
+            },
+            icon: const Icon(Icons.play_arrow),
+            color: Colors.white,
+          ),
+          Container(
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditAlarmScreen(
+                        alarm: alarm,
+                        onAlarmEdited: (updatedAlarm) {
+                          _editAlarm(index, updatedAlarm);
+                        },
+                      )
+                    )
+                  );
+              },
+              color: Colors.white,
+              icon: const Icon(Icons.settings),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              onPressed: () {
+                _removeAlarm(index);
+              },
+              icon: const Icon(Icons.delete),
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -149,107 +170,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
         itemCount: alarms.length,
         itemBuilder: (context, index) {
           final alarm = alarms[index];
-          return Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 112, 112, 112),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(alarm['time'],
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 30)),
-                    const Spacer(),
-                    Switch(
-                      value: alarm['isActive'],
-                      onChanged: (value) {
-                        _toggleAlarmActive(index, value);
-                      },
-                      activeColor: Colors.blue,
-                    ),
-
-                    Container(
-
-                      margin: const EdgeInsets.only(right: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditAlarmScreen(
-                                alarm: alarm,
-                                onAlarmEdited: (updatedAlarm) {
-                                  _editAlarm(index, updatedAlarm);
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                        color: Colors.white,
-                        icon: const Icon(Icons.settings),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            alarms.removeAt(index);
-                          });
-                        },
-                        icon: const Icon(Icons.delete),
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (int i = 0; i < 7; i++)
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: alarm['days'][i] ? Colors.blue : Colors.grey,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'][i],
-                          style: TextStyle(
-                            color:
-                                alarm['days'][i] ? Colors.white : Colors.black,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
+          return alarmPanel(alarm, index);
+           },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddAlarmScreen(onAlarmAdded: _addAlarm),
-            ),
+                builder: (context) => AddAlarmScreen(onAlarmAdded: _addAlarm)),
           );
         },
         backgroundColor: Colors.blue,
