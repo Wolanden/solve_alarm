@@ -32,10 +32,11 @@ class AlarmScreen extends StatefulWidget {
 }
 
 class _AlarmScreenState extends State<AlarmScreen> {
-  List<Map<String, dynamic>> alarms = [];
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  Timer? _timer;
-  Map<String, dynamic>? _currentlyRingingAlarm;
+  List<Map<String, dynamic>> alarms = []; // List to store all alarms
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Audio player for alarm sounds
+  Timer? _timer; // Timer to periodically check alarms
+  Map<String, dynamic>? _currentlyRingingAlarm; // Currently active alarm
+  DateTime? _lastAlarmTime;
 
   @override
   void initState() {
@@ -61,10 +62,13 @@ class _AlarmScreenState extends State<AlarmScreen> {
       return;
     }
 
-    final now = DateTime.now();
-    final currentTime =
-        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    final currentDay = now.weekday - 1;
+      final now = DateTime.now();
+    if (_lastAlarmTime != null && now.difference(_lastAlarmTime!).inMinutes < 1) {
+      return;
+    }
+
+    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final currentDay = now.weekday - 1; // 0 for Monday, 6 for Sunday
 
     for (var alarm in alarms) {
       if (alarm['isActive'] &&
@@ -79,6 +83,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
   void _ringAlarm(Map<String, dynamic> alarm) {
     setState(() {
       _currentlyRingingAlarm = alarm;
+      _lastAlarmTime = DateTime.now();
     });
     _audioPlayer.play(AssetSource('sounds/${alarm['sound']}'));
     _audioPlayer.setReleaseMode(ReleaseMode.loop);
@@ -167,7 +172,9 @@ class _AlarmScreenState extends State<AlarmScreen> {
                       },
                       activeColor: Colors.blue,
                     ),
+
                     Container(
+
                       margin: const EdgeInsets.only(right: 10),
                       decoration: BoxDecoration(
                         color: Colors.blue,
