@@ -1,7 +1,10 @@
+
 import 'package:flutter/material.dart';
+import 'package:solve_alarm/model/alarms.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:solve_alarm/service/json_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,8 +34,16 @@ class AlarmScreen extends StatefulWidget {
 }
 
 class _AlarmScreenState extends State<AlarmScreen> {
-  List<Map<String, dynamic>> alarms = [];
+  List<Alarm> alarms = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
+
+
+  _loadAlarmsFromJson() async {
+    List<Alarm> fetchedAlarms = await JsonService().loadAlarmsFromJson();
+    setState(() {
+      alarms = fetchedAlarms;
+    });
+  }
 
   @override
   void dispose() {
@@ -40,9 +51,17 @@ class _AlarmScreenState extends State<AlarmScreen> {
     super.dispose();
   }
 
-  void _addAlarm(Map<String, dynamic> newAlarm) {
+  @override
+  void initState() {
+    super.initState();
+    _loadAlarmsFromJson();
+  }
+
+  dynamic _addAlarm(Alarm newAlarm) {
+
     setState(() {
-      alarms.add({...newAlarm, 'isActive': true});
+      newAlarm.active = true;
+      alarms.add(newAlarm);
     });
   }
 
@@ -52,13 +71,13 @@ class _AlarmScreenState extends State<AlarmScreen> {
     });
   }
 
-  void _toggleAlarmActive(int index, bool isActive) {
+  void _toggleAlarmActive(int index, bool active) {
     setState(() {
-      alarms[index]['isActive'] = isActive;
+      alarms[index].active = active;
     });
   }
 
-  Container alarmPanel(Map alarm, int index) {
+  Container alarmPanel(Alarm alarm, int index) {
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(10),
@@ -69,11 +88,11 @@ class _AlarmScreenState extends State<AlarmScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(alarm['time'],
+          Text(alarm.time,
               style: const TextStyle(color: Colors.white, fontSize: 30)),
           const Spacer(),
           Switch(
-            value: alarm['isActive'],
+            value: alarm.active,
             onChanged: (value) {
               _toggleAlarmActive(index, value);
             },
@@ -81,9 +100,9 @@ class _AlarmScreenState extends State<AlarmScreen> {
           ),
           IconButton(
             onPressed: () async {
-              if (alarm['sound'] != null && alarm['sound'].isNotEmpty) {
+              if (alarm.sound != null && alarm.sound.isNotEmpty) {
                 await _audioPlayer
-                    .play(AssetSource('sounds/${alarm['sound']}'));
+                    .play(AssetSource('sounds/${alarm.sound}'));
               }
             },
             icon: const Icon(Icons.play_arrow),
