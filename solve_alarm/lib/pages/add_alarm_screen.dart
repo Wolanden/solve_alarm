@@ -13,7 +13,7 @@ class AddAlarmScreen extends StatefulWidget {
 class _AddAlarmScreenState extends State<AddAlarmScreen> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   final List<bool> _selectedDays = List.generate(7, (_) => false);
-  String _selectedSound = '';
+  String _selectedSound = 'BlackBanjocore.mp3';
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
 
@@ -21,7 +21,7 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
     'Allstar.mp3',
     'BlackBanjocore.mp3',
     'CanIGet.mp3',
-    'ElSondito.mp3',
+    'ElSonidito.mp3',
     'FaxSound.mp3',
     'HebDini.mp3',
     'KirinJCallinan.mp3',
@@ -93,7 +93,7 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
             ),
             const SizedBox(height: 20),
             DropdownButton<String>(
-              value: _selectedSound.isEmpty ? null : _selectedSound,
+              value: _selectedSound,
               hint: const Text('Weckton auswählen'),
               items: _availableSounds.map((String sound) {
                 return DropdownMenuItem<String>(
