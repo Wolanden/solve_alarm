@@ -1,9 +1,10 @@
+import '../model/alarms.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class EditAlarmScreen extends StatefulWidget {
-  final Map<String, dynamic> alarm;
-  final Function(Map<String, dynamic>) onAlarmEdited;
+  final Alarm alarm;
+  final Function(Alarm) onAlarmEdited;
 
   const EditAlarmScreen({
     super.key,
@@ -37,13 +38,13 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
   @override
   void initState() {
     super.initState();
-    final timeParts = widget.alarm['time'].split(':');
+    final timeParts = widget.alarm.time.split(':');
     _selectedTime = TimeOfDay(
       hour: int.parse(timeParts[0]),
       minute: int.parse(timeParts[1]),
     );
-    _selectedDays = List<bool>.from(widget.alarm['days']);
-    _selectedSound = widget.alarm['sound'];
+    _selectedDays = List<bool>.from(widget.alarm.weekdays);
+    _selectedSound = widget.alarm.sound;
   }
 
   @override
@@ -146,12 +147,13 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                final updatedAlarm = {
-                  'time': _formatTimeOfDay(_selectedTime),
-                  'days': _selectedDays,
-                  'sound': _selectedSound,
-                  'isActive': widget.alarm['isActive'],
-                };
+                Alarm updatedAlarm = Alarm(
+                  active: widget.alarm.active, 
+                  time: _formatTimeOfDay(_selectedTime), 
+                  weekdays: _selectedDays, 
+                  sound: _selectedSound
+                  );
+                  
                 widget.onAlarmEdited(updatedAlarm);
                 Navigator.pop(context);
               },

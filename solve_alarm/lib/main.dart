@@ -78,6 +78,13 @@ class _AlarmScreenState extends State<AlarmScreen> {
     persistAlarms();
   }
 
+  void _editAlarm(int index, Alarm updatedAlarm) {
+    setState(() {
+      alarms[index] = updatedAlarm;
+    });
+    persistAlarms();
+  }
+
   Container alarmPanel(Alarm alarm, int index) {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -120,7 +127,14 @@ class _AlarmScreenState extends State<AlarmScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const EditAlarmScreen()));
+                      builder: (context) => EditAlarmScreen(
+                        alarm: alarm,
+                        onAlarmEdited: (updatedAlarm) {
+                          _editAlarm(index, updatedAlarm);
+                        },
+                      )
+                    )
+                  );
               },
               color: Colors.white,
               icon: const Icon(Icons.settings),
