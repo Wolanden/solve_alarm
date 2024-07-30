@@ -36,6 +36,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer(); // Audio player for alarm sounds
   Timer? _timer; // Timer to periodically check alarms
   Map<String, dynamic>? _currentlyRingingAlarm; // Currently active alarm
+  DateTime? _lastAlarmTime;
 
   @override
   void initState() {
@@ -62,7 +63,11 @@ class _AlarmScreenState extends State<AlarmScreen> {
       return;
     }
 
-    final now = DateTime.now();
+      final now = DateTime.now();
+    if (_lastAlarmTime != null && now.difference(_lastAlarmTime!).inMinutes < 1) {
+      return;
+    }
+
     final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     final currentDay = now.weekday - 1; // 0 for Monday, 6 for Sunday
 
@@ -79,11 +84,13 @@ class _AlarmScreenState extends State<AlarmScreen> {
   void _ringAlarm(Map<String, dynamic> alarm) {
     setState(() {
       _currentlyRingingAlarm = alarm;
+      _lastAlarmTime = DateTime.now();
     });
     _audioPlayer.play(AssetSource('sounds/${alarm['sound']}'));
     _audioPlayer.setReleaseMode(ReleaseMode.loop);
     _showAlarmDialog(alarm);
   }
+  
   // Show a dialog when an alarm is ringing
   void _showAlarmDialog(Map<String, dynamic> alarm) {
     showDialog(
@@ -161,17 +168,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
                       },
                       activeColor: Colors.blue,
                     ),
-                    IconButton(
-                      onPressed: () async {
-                        if (alarm['sound'] != null && alarm['sound'].isNotEmpty) {
-                          await _audioPlayer
-                              .play(AssetSource('sounds/${alarm['sound']}'));
-                        }
-                      },
-                      icon: const Icon(Icons.play_arrow),
-                      color: Colors.white,
-                    ),
-                    Container(
+                     Container(
                       margin: const EdgeInsets.only(right: 10),
                       decoration: BoxDecoration(
                         color: Colors.blue,
