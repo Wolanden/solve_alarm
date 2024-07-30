@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-// Main screen of the alarm app
+
 class AlarmScreen extends StatefulWidget {
   const AlarmScreen({super.key});
 
@@ -50,16 +50,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
     _audioPlayer.dispose();
     super.dispose();
   }
-  // Start a periodic timer to check alarms
+
   void _startAlarmChecker() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _checkAlarms();
     });
   }
-  // Check if any alarms should ring
+
   void _checkAlarms() {
     if (_currentlyRingingAlarm != null) {
-      // An alarm is already ringing, don't check for new alarms
       return;
     }
 
@@ -72,15 +71,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
     final currentDay = now.weekday - 1; // 0 for Monday, 6 for Sunday
 
     for (var alarm in alarms) {
-      if (alarm['isActive'] && 
-          alarm['time'] == currentTime && 
+      if (alarm['isActive'] &&
+          alarm['time'] == currentTime &&
           alarm['days'][currentDay]) {
         _ringAlarm(alarm);
         break;
       }
     }
   }
-  // Trigger the alarm
+
   void _ringAlarm(Map<String, dynamic> alarm) {
     setState(() {
       _currentlyRingingAlarm = alarm;
@@ -90,8 +89,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
     _audioPlayer.setReleaseMode(ReleaseMode.loop);
     _showAlarmDialog(alarm);
   }
-  
-  // Show a dialog when an alarm is ringing
+
   void _showAlarmDialog(Map<String, dynamic> alarm) {
     showDialog(
       context: context,
@@ -113,27 +111,33 @@ class _AlarmScreenState extends State<AlarmScreen> {
       },
     );
   }
-  // Stop the currently ringing alarm
+
   void _stopAlarm() {
     _audioPlayer.stop();
     setState(() {
       _currentlyRingingAlarm = null;
     });
   }
-  // Add a new alarm to the list
+
   void _addAlarm(Map<String, dynamic> newAlarm) {
     setState(() {
       alarms.add({...newAlarm, 'isActive': true});
     });
   }
-  // Toggle an alarm's active state
+
   void _toggleAlarmActive(int index, bool isActive) {
     setState(() {
       alarms[index]['isActive'] = isActive;
     });
   }
 
-    @override
+  void _editAlarm(int index, Map<String, dynamic> updatedAlarm) {
+    setState(() {
+      alarms[index] = updatedAlarm;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -146,7 +150,6 @@ class _AlarmScreenState extends State<AlarmScreen> {
         itemBuilder: (context, index) {
           final alarm = alarms[index];
           return Container(
-            // ... (UI code for each alarm item)
             margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -159,7 +162,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(alarm['time'],
-                        style: const TextStyle(color: Colors.white, fontSize: 30)),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 30)),
                     const Spacer(),
                     Switch(
                       value: alarm['isActive'],
@@ -168,7 +172,9 @@ class _AlarmScreenState extends State<AlarmScreen> {
                       },
                       activeColor: Colors.blue,
                     ),
-                     Container(
+
+                    Container(
+
                       margin: const EdgeInsets.only(right: 10),
                       decoration: BoxDecoration(
                         color: Colors.blue,
@@ -177,9 +183,16 @@ class _AlarmScreenState extends State<AlarmScreen> {
                       child: IconButton(
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const EditAlarmScreen()));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditAlarmScreen(
+                                alarm: alarm,
+                                onAlarmEdited: (updatedAlarm) {
+                                  _editAlarm(index, updatedAlarm);
+                                },
+                              ),
+                            ),
+                          );
                         },
                         color: Colors.white,
                         icon: const Icon(Icons.settings),
@@ -217,7 +230,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
                         child: Text(
                           ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'][i],
                           style: TextStyle(
-                            color: alarm['days'][i] ? Colors.white : Colors.black,
+                            color:
+                                alarm['days'][i] ? Colors.white : Colors.black,
                             fontSize: 12,
                           ),
                         ),
@@ -234,7 +248,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => AddAlarmScreen(onAlarmAdded: _addAlarm)),
+              builder: (context) => AddAlarmScreen(onAlarmAdded: _addAlarm),
+            ),
           );
         },
         backgroundColor: Colors.blue,
