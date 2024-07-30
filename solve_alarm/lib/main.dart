@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:solve_alarm/model/alarms.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
@@ -9,10 +8,8 @@ import 'package:solve_alarm/service/alarm_save_service.dart';
 void main() {
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -28,15 +25,13 @@ class MyApp extends StatelessWidget {
 
 class AlarmScreen extends StatefulWidget {
   const AlarmScreen({super.key});
-
   @override
   State<AlarmScreen> createState() => _AlarmScreenState();
 }
 
-class _AlarmScreenState extends State<AlarmScreen> {
+class _AlarmScreenState extends State<AlarmScreen> { 
   List<Alarm> alarms = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
-
 
   _loadAlarms() async {
     List<Alarm> fetchedAlarms = await AlarmSaveService().loadAlarms();
@@ -49,7 +44,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
   void dispose() {
     _audioPlayer.dispose();
     super.dispose();
-  }
+  } 
 
   @override
   void initState() {
@@ -61,7 +56,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
     await AlarmSaveService().persistAlarms(alarms);
   }
 
-  dynamic _addAlarm(Alarm newAlarm) {
+  void _addAlarm(Alarm newAlarm) {
     setState(() {      
       newAlarm.active = true;
       alarms.add(newAlarm);
@@ -162,7 +157,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
         itemBuilder: (context, index) {
           final alarm = alarms[index];
           return alarmPanel(alarm, index);
-        },
+           },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

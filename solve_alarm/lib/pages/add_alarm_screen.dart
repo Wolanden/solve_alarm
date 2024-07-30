@@ -14,15 +14,15 @@ class AddAlarmScreen extends StatefulWidget {
 class _AddAlarmScreenState extends State<AddAlarmScreen> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   final List<bool> _selectedDays = List.generate(7, (_) => false);
-  String _selectedSound = '';
+  String _selectedSound = 'BlackBanjocore.mp3';
   final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isPlaying = false;
 
-  // List of available sounds (update this with your actual sound file names)
   final List<String> _availableSounds = [
     'Allstar.mp3',
     'BlackBanjocore.mp3',
     'CanIGet.mp3',
-    'ElSondito.mp3',
+    'ElSonidito.mp3',
     'FaxSound.mp3',
     'HebDini.mp3',
     'KirinJCallinan.mp3',
@@ -36,11 +36,17 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
     super.dispose();
   }
 
+  String _formatTimeOfDay(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Alarm'),
+        title: const Text('Wecker hinzufügen'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,6 +58,13 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
                 final TimeOfDay? picked = await showTimePicker(
                   context: context,
                   initialTime: _selectedTime,
+                  builder: (BuildContext context, Widget? child) {
+                    return MediaQuery(
+                      data: MediaQuery.of(context)
+                          .copyWith(alwaysUse24HourFormat: true),
+                      child: child!,
+                    );
+                  },
                 );
                 if (picked != null && picked != _selectedTime) {
                   setState(() {
@@ -59,15 +72,17 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
                   });
                 }
               },
-              child: Text('Select Time: ${_selectedTime.format(context)}'),
+              child: Text('Zeit auswählen: ${_formatTimeOfDay(_selectedTime)}'),
             ),
             const SizedBox(height: 20),
-            const Text('Select Days:', style: TextStyle(color: Colors.white)),
+            const Text('Tage auswählen:',
+                style: TextStyle(color: Colors.white)),
             Wrap(
               spacing: 8.0,
               children: List.generate(7, (index) {
                 return FilterChip(
-                  label: Text(['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]),
+                  label:
+                      Text(['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'][index]),
                   selected: _selectedDays[index],
                   onSelected: (bool selected) {
                     setState(() {
@@ -79,8 +94,8 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
             ),
             const SizedBox(height: 20),
             DropdownButton<String>(
-              value: _selectedSound.isEmpty ? null : _selectedSound,
-              hint: const Text('Select Alarm Sound'),
+              value: _selectedSound,
+              hint: const Text('Weckton auswählen'),
               items: _availableSounds.map((String sound) {
                 return DropdownMenuItem<String>(
                   value: sound,
@@ -91,17 +106,26 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
                 if (newValue != null) {
                   setState(() {
                     _selectedSound = newValue;
+                    _isPlaying = false;
                   });
+                  _audioPlayer.stop();
                 }
               },
             ),
             if (_selectedSound.isNotEmpty)
               ElevatedButton(
                 onPressed: () async {
-                  await _audioPlayer
-                      .play(AssetSource('sounds/$_selectedSound'));
+                  if (_isPlaying) {
+                    _audioPlayer.stop();
+                  } else {
+                    await _audioPlayer
+                        .play(AssetSource('sounds/$_selectedSound'));
+                  }
+                  setState(() {
+                    _isPlaying = !_isPlaying;
+                  });
                 },
-                child: const Text('Preview Sound'),
+                child: Text(_isPlaying ? 'Ton stoppen' : 'Ton abspielen'),
               ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -117,7 +141,7 @@ class _AddAlarmScreenState extends State<AddAlarmScreen> {
                 widget.onAlarmAdded(newAlarm);
                 Navigator.pop(context);
               },
-              child: const Text('Save Alarm'),
+              child: const Text('Wecker speichern'),
             ),
           ],
         ),
