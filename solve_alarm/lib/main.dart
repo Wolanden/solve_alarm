@@ -4,6 +4,7 @@ import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:solve_alarm/service/alarm_save_service.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +33,9 @@ class AlarmScreen extends StatefulWidget {
 class _AlarmScreenState extends State<AlarmScreen> { 
   List<Alarm> alarms = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
+  Timer? _timer;
+  Alarm? _currentlyRingingAlarm;
+  DateTime? _lastAlarmTime;
 
   _loadAlarms() async {
     List<Alarm> fetchedAlarms = await AlarmSaveService().loadAlarms();
@@ -42,14 +46,84 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    _audioPlayer.dispose();    
+    _timer?.cancel();
     super.dispose();
   } 
 
   @override
   void initState() {
     super.initState();
-    _loadAlarms();
+    _loadAlarms();    
+    _startAlarmChecker();
+  }
+
+  void _startAlarmChecker() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _checkAlarms();
+    });
+  }
+
+  void _checkAlarms() {
+    if (_currentlyRingingAlarm != null) {
+      return;
+    }
+
+      final now = DateTime.now();
+    if (_lastAlarmTime != null && now.difference(_lastAlarmTime!).inMinutes < 1) {
+      return;
+    }
+
+    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final currentDay = now.weekday - 1; // 0 for Monday, 6 for Sunday
+
+    for (var alarm in alarms) {
+      if (alarm.active &&
+          alarm.time == currentTime &&
+          alarm.weekdays[currentDay]) {
+        _ringAlarm(alarm);
+        break;
+      }
+    }
+  }
+
+  void _ringAlarm(Alarm alarm) {
+    setState(() {
+      _currentlyRingingAlarm = alarm;
+      _lastAlarmTime = DateTime.now();
+    });
+    _audioPlayer.play(AssetSource('sounds/${alarm.sound}'));
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    _showAlarmDialog(alarm);
+  }
+
+  void _showAlarmDialog(Alarm alarm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Alarm!'),
+          content: Text('Zeit: ${alarm.time}'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Stoppen'),
+              onPressed: () {
+                _stopAlarm();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _stopAlarm() {
+    _audioPlayer.stop();
+    setState(() {
+      _currentlyRingingAlarm = null;
+    });
   }
 
   void persistAlarms() async {
@@ -105,16 +179,6 @@ class _AlarmScreenState extends State<AlarmScreen> {
               _toggleAlarmActive(index, value);
             },
             activeColor: Colors.blue,
-          ),
-          IconButton(
-            onPressed: () async {
-              if (alarm.sound.isNotEmpty) {
-                await _audioPlayer
-                    .play(AssetSource('sounds/${alarm.sound}'));
-              }
-            },
-            icon: const Icon(Icons.play_arrow),
-            color: Colors.white,
           ),
           Container(
             margin: const EdgeInsets.only(right: 10),
