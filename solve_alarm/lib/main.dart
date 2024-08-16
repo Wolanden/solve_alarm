@@ -101,19 +101,162 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   void _showAlarmDialog(Alarm alarm) {
+    _askFirstQuestion(alarm);
+  }
+
+  void _askFirstQuestion(Alarm alarm) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Alarm!'),
-          content: Text('Zeit: ${alarm.time}'),
+          title: const Text('Do you want to turn the alarm off?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('Stoppen'),
+              child: const Text('YES', style: TextStyle(color: Colors.green)),
               onPressed: () {
-                _stopAlarm();
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the dialog
+                _askSecondQuestion(alarm);
+              },
+            ),
+            TextButton(
+              child: const Text('NO', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askFirstQuestion(alarm); // Go back to the first question
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _askSecondQuestion(Alarm alarm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('YES', style: TextStyle(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askThirdQuestion(alarm);
+              },
+            ),
+            TextButton(
+              child: const Text('NO', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askFirstQuestion(alarm); // Go back to the first question
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _askThirdQuestion(Alarm alarm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you awake?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('YES', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askFourthQuestion(alarm);
+              },
+            ),
+            TextButton(
+              child: const Text('NO', style: TextStyle(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askFirstQuestion(alarm); // Go back to the first question
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _askFourthQuestion(Alarm alarm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you lying to me?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('YES', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askFirstQuestion(alarm); // Go back to the first question
+              },
+            ),
+            TextButton(
+              child: const Text('NO', style: TextStyle(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askFifthQuestion(alarm);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _askFifthQuestion(Alarm alarm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Is 45 + 118 = 163?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('YES', style: TextStyle(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askSixthQuestion(alarm);
+              },
+            ),
+            TextButton(
+              child: const Text('NO', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _askFirstQuestion(alarm); // Go back to the first question
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _askSixthQuestion(Alarm alarm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Have a nice day.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK', style: TextStyle(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _stopAlarm(); // Stop the alarm
               },
             ),
           ],
