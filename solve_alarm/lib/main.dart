@@ -9,6 +9,7 @@ import 'dart:async';
 void main() {
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
@@ -30,7 +31,7 @@ class AlarmScreen extends StatefulWidget {
   State<AlarmScreen> createState() => _AlarmScreenState();
 }
 
-class _AlarmScreenState extends State<AlarmScreen> { 
+class _AlarmScreenState extends State<AlarmScreen> {
   List<Alarm> alarms = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
   Timer? _timer;
@@ -46,15 +47,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   @override
   void dispose() {
-    _audioPlayer.dispose();    
+    _audioPlayer.dispose();
     _timer?.cancel();
     super.dispose();
-  } 
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadAlarms();    
+    _loadAlarms();
     _startAlarmChecker();
   }
 
@@ -69,12 +70,14 @@ class _AlarmScreenState extends State<AlarmScreen> {
       return;
     }
 
-      final now = DateTime.now();
-    if (_lastAlarmTime != null && now.difference(_lastAlarmTime!).inMinutes < 1) {
+    final now = DateTime.now();
+    if (_lastAlarmTime != null &&
+        now.difference(_lastAlarmTime!).inMinutes < 1) {
       return;
     }
 
-    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final currentTime =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     final currentDay = now.weekday - 1; // 0 for Monday, 6 for Sunday
 
     for (var alarm in alarms) {
@@ -131,7 +134,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   void _addAlarm(Alarm newAlarm) {
-    setState(() {      
+    setState(() {
       newAlarm.active = true;
       alarms.add(newAlarm);
     });
@@ -191,14 +194,12 @@ class _AlarmScreenState extends State<AlarmScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EditAlarmScreen(
-                        alarm: alarm,
-                        onAlarmEdited: (updatedAlarm) {
-                          _editAlarm(index, updatedAlarm);
-                        },
-                      )
-                    )
-                  );
+                        builder: (context) => EditAlarmScreen(
+                              alarm: alarm,
+                              onAlarmEdited: (updatedAlarm) {
+                                _editAlarm(index, updatedAlarm);
+                              },
+                            )));
               },
               color: Colors.white,
               icon: const Icon(Icons.settings),
@@ -235,7 +236,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
         itemBuilder: (context, index) {
           final alarm = alarms[index];
           return alarmPanel(alarm, index);
-           },
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
