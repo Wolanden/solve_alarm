@@ -115,15 +115,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
             TextButton(
               child: const Text('YES', style: TextStyle(color: Colors.green)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
                 _askSecondQuestion(alarm);
               },
             ),
             TextButton(
               child: const Text('NO', style: TextStyle(color: Colors.red)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _askFirstQuestion(alarm); // Go back to the first question
+                Navigator.of(context).pop();
+                _askFirstQuestion(alarm);
               },
             ),
           ],
@@ -141,17 +141,17 @@ class _AlarmScreenState extends State<AlarmScreen> {
           title: const Text('Are you sure?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('YES', style: TextStyle(color: Colors.green)),
+              child: const Text('NO', style: TextStyle(color: Colors.green)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _askThirdQuestion(alarm);
+                Navigator.of(context).pop();
+                _askFirstQuestion(alarm);
               },
             ),
             TextButton(
-              child: const Text('NO', style: TextStyle(color: Colors.red)),
+              child: const Text('YES', style: TextStyle(color: Colors.red)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _askFirstQuestion(alarm); // Go back to the first question
+                Navigator.of(context).pop();
+                _askThirdQuestion(alarm);
               },
             ),
           ],
@@ -171,15 +171,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
             TextButton(
               child: const Text('YES', style: TextStyle(color: Colors.red)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
                 _askFourthQuestion(alarm);
               },
             ),
             TextButton(
               child: const Text('NO', style: TextStyle(color: Colors.green)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _askFirstQuestion(alarm); // Go back to the first question
+                Navigator.of(context).pop();
+                _askFirstQuestion(alarm);
               },
             ),
           ],
@@ -197,16 +197,16 @@ class _AlarmScreenState extends State<AlarmScreen> {
           title: const Text('Are you lying to me?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('YES', style: TextStyle(color: Colors.red)),
+              child: const Text('YES', style: TextStyle(color: Colors.green)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _askFirstQuestion(alarm); // Go back to the first question
+                Navigator.of(context).pop();
+                _askFirstQuestion(alarm);
               },
             ),
             TextButton(
-              child: const Text('NO', style: TextStyle(color: Colors.green)),
+              child: const Text('NO', style: TextStyle(color: Colors.red)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
                 _askFifthQuestion(alarm);
               },
             ),
@@ -222,20 +222,20 @@ class _AlarmScreenState extends State<AlarmScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Is 45 + 118 = 163?'),
+          title: const Text('Do you regret getting this app?'),
           actions: <Widget>[
             TextButton(
               child: const Text('YES', style: TextStyle(color: Colors.green)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _askSixthQuestion(alarm);
+                Navigator.of(context).pop();
+                _askFirstQuestion(alarm);
               },
             ),
             TextButton(
               child: const Text('NO', style: TextStyle(color: Colors.red)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _askFirstQuestion(alarm); // Go back to the first question
+                Navigator.of(context).pop();
+                _askSixthQuestion(alarm);
               },
             ),
           ],
@@ -255,8 +255,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
             TextButton(
               child: const Text('OK', style: TextStyle(color: Colors.green)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _stopAlarm(); // Stop the alarm
+                Navigator.of(context).pop();
+                _stopAlarm();
               },
             ),
           ],
