@@ -27,7 +27,7 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
     'Allstar.mp3',
     'BlackBanjocore.mp3',
     'CanIGet.mp3',
-    'ElSondito.mp3',
+    'ElSonidito.mp3',
     'FaxSound.mp3',
     'HebDini.mp3',
     'KirinJCallinan.mp3',
@@ -149,12 +149,11 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
             ElevatedButton(
               onPressed: () {
                 Alarm updatedAlarm = Alarm(
-                  active: widget.alarm.active, 
-                  time: _formatTimeOfDay(_selectedTime), 
-                  weekdays: _selectedDays, 
-                  sound: _selectedSound
-                  );
-                  
+                    active: widget.alarm.active,
+                    time: _formatTimeOfDay(_selectedTime),
+                    weekdays: _selectedDays,
+                    sound: _selectedSound);
+
                 widget.onAlarmEdited(updatedAlarm);
                 Navigator.pop(context);
               },
