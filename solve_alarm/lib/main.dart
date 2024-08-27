@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:solve_alarm/model/alarms.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
-import 'package:solve_alarm/pages/sudoku.dart'; 
+import 'package:solve_alarm/pages/sudoku.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:solve_alarm/service/alarm_save_service.dart';
 import 'dart:async';
+import 'dart:math';
 
 void main() {
   runApp(const MyApp());
@@ -102,8 +103,22 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   void _showAlarmDialog(Alarm alarm) {
-    _askFirstQuestion(alarm);
-  }
+    Random random = Random();
+    int choice = random.nextInt(2 /*3*/ ) + 1;
+    
+  switch (choice) {
+      case 1:
+        _askFirstQuestion(alarm);
+        break;
+      case 2:
+        _openSudokuPage();
+        break;
+      /* case 3:
+        print('Führe _showMathProblem aus');
+        _showMathProblem(alarm);
+        break; */
+    }
+  }  
 
   void _askFirstQuestion(Alarm alarm) {
     showDialog(
