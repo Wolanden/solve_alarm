@@ -93,7 +93,7 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
             ),
             const SizedBox(height: 20),
             const Text('Tage auswählen:',
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(color: Color.fromARGB(255, 57, 158, 216))),
             Wrap(
               spacing: 8.0,
               children: List.generate(7, (index) {
@@ -113,6 +113,7 @@ class _EditAlarmScreenState extends State<EditAlarmScreen> {
             DropdownButton<String>(
               value: _selectedSound,
               hint: const Text('Weckton auswählen'),
+                  style: const TextStyle(color: Color.fromARGB(255, 57, 158, 216)),
               items: _availableSounds.map((String sound) {
                 return DropdownMenuItem<String>(
                   value: sound,
