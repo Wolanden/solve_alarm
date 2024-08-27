@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:solve_alarm/model/alarms.dart';
 import 'package:solve_alarm/pages/add_alarm_screen.dart';
 import 'package:solve_alarm/pages/edit_alarm_screen.dart';
+import 'package:solve_alarm/pages/sudoku.dart'; 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:solve_alarm/service/alarm_save_service.dart';
 import 'dart:async';
@@ -113,6 +114,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
           title: const Text('Do you want to turn the alarm off?'),
           actions: <Widget>[
             TextButton(
+
               child: const Text('YES', style: TextStyle(color: Colors.green)),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -257,11 +259,25 @@ class _AlarmScreenState extends State<AlarmScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _stopAlarm();
+
               },
             ),
           ],
         );
       },
+    );
+  }
+
+void _openSudokuPage() {
+    Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SudokuPage(
+          onSudokuSolved: () {
+            _stopAlarm();
+          },
+        ),
+      ),
     );
   }
 

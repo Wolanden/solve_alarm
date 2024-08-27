@@ -1,9 +1,11 @@
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.solve_alarm">
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.SET_ALARM"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
 
     <application
         android:label="solve_alarm"
