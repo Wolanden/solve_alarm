@@ -104,21 +104,75 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   void _showAlarmDialog(Alarm alarm) {
     Random random = Random();
-    int choice = random.nextInt(2 /*3*/ ) + 1;
+    int choice = random.nextInt(2);
     
   switch (choice) {
-      case 1:
+      case 0:
         _askFirstQuestion(alarm);
         break;
-      case 2:
+      case 1:
         _openSudokuPage();
         break;
-      /* case 3:
-        print('Führe _showMathProblem aus');
-        _showMathProblem(alarm);
-        break; */
+      case 2:
+        _askMathQuestion(alarm);
+        break;
     }
-  }  
+  }
+
+  void _askMathQuestion(Alarm alarm) {
+    int number1 = Random().nextInt(20);
+    int number2 = Random().nextInt(20);
+
+    String operation = '+';
+    int correctAnswer = 0;
+    int wrongAnswer = Random().nextInt(20);
+
+    if (Random().nextInt(0) == 1) {
+      operation = '-';
+      correctAnswer = number1 - number2;
+    } else {
+      correctAnswer = number1 + number2;
+    }
+
+    String question = number1.toString() + " " + operation + " " + number2.toString();
+
+    TextButton correctButton = TextButton(
+      child: Text(correctAnswer.toString()),
+      onPressed: () {
+        Navigator.of(context).pop();
+        _stopAlarm();
+      },
+    );
+    
+    TextButton wrongButton = TextButton(
+      child: Text(wrongAnswer.toString()),
+      onPressed: () {
+        Navigator.of(context).pop();
+        _askMathQuestion(alarm);
+      },
+    );
+
+    List<Widget> buttons = [];
+
+    if (Random().nextInt(0) == 1) {
+      buttons.add(wrongButton);
+      buttons.add(correctButton);
+    } else {
+      buttons.add(correctButton);
+      buttons.add(wrongButton);
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(question),
+          actions: buttons,
+        );
+      },
+    );
+  }
 
   void _askFirstQuestion(Alarm alarm) {
     showDialog(
@@ -274,7 +328,6 @@ class _AlarmScreenState extends State<AlarmScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _stopAlarm();
-
               },
             ),
           ],
@@ -283,7 +336,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
     );
   }
 
-void _openSudokuPage() {
+  void _openSudokuPage() {
     Navigator.push<bool>(
       context,
       MaterialPageRoute(
