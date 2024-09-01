@@ -102,11 +102,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
     _showAlarmDialog(alarm);
   }
 
-  void _showAlarmDialog(Alarm alarm) {
-    Random random = Random();
-    int choice = random.nextInt(2);
-    
-  switch (choice) {
+  void _showAlarmDialog(Alarm alarm) {    
+    switch (Random().nextInt(3)) {
       case 0:
         _askFirstQuestion(alarm);
         break;
@@ -120,14 +117,14 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   void _askMathQuestion(Alarm alarm) {
-    int number1 = Random().nextInt(20);
-    int number2 = Random().nextInt(20);
+    int number1 = Random().nextInt(21);
+    int number2 = Random().nextInt(21);
 
     String operation = '+';
     int correctAnswer = 0;
-    int wrongAnswer = Random().nextInt(20);
+    int wrongAnswer = Random().nextInt(21);
 
-    if (Random().nextInt(0) == 1) {
+    if (Random().nextInt(2) == 1) {
       operation = '-';
       correctAnswer = number1 - number2;
     } else {
@@ -154,7 +151,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
     List<Widget> buttons = [];
 
-    if (Random().nextInt(0) == 1) {
+    if (Random().nextInt(2) == 1) {
       buttons.add(wrongButton);
       buttons.add(correctButton);
     } else {
