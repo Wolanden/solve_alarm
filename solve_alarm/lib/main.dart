@@ -120,44 +120,12 @@ class _AlarmScreenState extends State<AlarmScreen> {
     int number1 = Random().nextInt(21);
     int number2 = Random().nextInt(21);
 
-    String operation = '+';
-    int correctAnswer = 0;
-    int wrongAnswer = Random().nextInt(21);
+    String operation = Random().nextInt(2) == 0 ? '+' : '-';
+    int correctAnswer = operation == '+' ? number1 + number2 : number1 - number2;
 
-    if (Random().nextInt(2) == 1) {
-      operation = '-';
-      correctAnswer = number1 - number2;
-    } else {
-      correctAnswer = number1 + number2;
-    }
+    String question = '$number1 $operation $number2 = ?';
 
-    String question = number1.toString() + " " + operation + " " + number2.toString();
-
-    TextButton correctButton = TextButton(
-      child: Text(correctAnswer.toString()),
-      onPressed: () {
-        Navigator.of(context).pop();
-        _stopAlarm();
-      },
-    );
-    
-    TextButton wrongButton = TextButton(
-      child: Text(wrongAnswer.toString()),
-      onPressed: () {
-        Navigator.of(context).pop();
-        _askMathQuestion(alarm);
-      },
-    );
-
-    List<Widget> buttons = [];
-
-    if (Random().nextInt(2) == 1) {
-      buttons.add(wrongButton);
-      buttons.add(correctButton);
-    } else {
-      buttons.add(correctButton);
-      buttons.add(wrongButton);
-    }
+    TextEditingController _answerController = TextEditingController();
 
     showDialog(
       context: context,
@@ -165,11 +133,34 @@ class _AlarmScreenState extends State<AlarmScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(question),
-          actions: buttons,
+          content: TextField(
+            controller: _answerController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(hintText: "Geben Sie Ihre Antwort ein"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Überprüfen'),
+              onPressed: () {
+                if (_answerController.text.isNotEmpty) {
+                  int userAnswer = int.parse(_answerController.text);
+                  if (userAnswer == correctAnswer) {
+                    Navigator.of(context).pop();
+                    _stopAlarm();
+                  } else {                    
+                    _answerController.clear();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Falsche Antwort. Versuchen Sie es erneut.')),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
         );
       },
-    );
-  }
+    );  }
+
 
   void _askFirstQuestion(Alarm alarm) {
     showDialog(
@@ -472,7 +463,11 @@ class _AlarmScreenState extends State<AlarmScreen> {
         },
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add),
+        
       ),
+
+      
     );
   }
+  
 }
