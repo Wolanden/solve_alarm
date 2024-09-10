@@ -10,8 +10,6 @@ class SudokuPage extends StatefulWidget {
   _SudokuPageState createState() => _SudokuPageState();
 }
 
-
-
 class _SudokuPageState extends State<SudokuPage> {
   late List<List<int>> _board;
   late List<List<bool>> _isEditable;
@@ -32,16 +30,43 @@ class _SudokuPageState extends State<SudokuPage> {
   }
 
   void _generateSolvedBoard() {
-    List<int> numbers = [1, 2, 3, 4];
-    numbers.shuffle();
+    List<int> baseRow = [1, 2, 3, 4];
+    baseRow.shuffle();
 
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
-        _board[i][j] = numbers[(i * 2 + j) % 4];
+        _board[i][j] = baseRow[(j + i * 1) % 4];
       }
-      if (i % 2 == 1) {
-        numbers.shuffle();
-      }
+    }
+
+    // Additional shuffling to increase randomness
+    for (int i = 0; i < 10; i++) {
+      _swapRows();
+      _swapColumns();
+    }
+  }
+
+  void _swapRows() {
+    Random random = Random();
+    int group = random.nextInt(2);
+    int row1 = group * 2 + random.nextInt(2);
+    int row2 = group * 2 + (row1 % 2 == 0 ? 1 : 0);
+    for (int j = 0; j < 4; j++) {
+      int temp = _board[row1][j];
+      _board[row1][j] = _board[row2][j];
+      _board[row2][j] = temp;
+    }
+  }
+
+  void _swapColumns() {
+    Random random = Random();
+    int group = random.nextInt(2);
+    int col1 = group * 2 + random.nextInt(2);
+    int col2 = group * 2 + (col1 % 2 == 0 ? 1 : 0);
+    for (int i = 0; i < 4; i++) {
+      int temp = _board[i][col1];
+      _board[i][col1] = _board[i][col2];
+      _board[i][col2] = temp;
     }
   }
 
